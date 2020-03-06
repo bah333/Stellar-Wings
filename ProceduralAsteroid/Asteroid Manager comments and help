@@ -1,0 +1,24 @@
+The AsteroidManager produces an asteroid field or belt and manages proper asteroid instantiation and group movement. If one asteroid is produced all feild and belt settings will be ignored and it will spawn at the managers location, ***********!!!DO NOT SPAWN TOO MANY ASTEROIDS IN TOO SMALL A RADIUS OR THEY WILL ALL SPAWN INSIDE EACH OTHER AND THE PHYSICS ENGINE WILL GO BALLISTIC AND YOU MAY CRASH YOUR DEVICE!!!**************** if multiple asteroids are made they will spawn within a sphere of radius = fieldRadius. Moving fields move around a giant circle so they dont endlessly travel away from you rendering them pointless and move around the circle with radius = FieldMoveRadius. Belts spawn asteroids in a belt whos radius from the location of the Asteroid manager = fieldMoveRadius. Moving belts rotate around the center.
+
+some good simple settings for use in game or for testing,
+these are not required settings, p.s, more asteroids and
+larger sized asteroids will require a larger FieldRadius
+(fields) and larger fieldMoveRadius (belts) so to not 
+instantiate them all on top of each other
+
+Asteroid (must be filled with the asteroid prefab)
+
+minAsteroidRadius = 0.5
+maxAsteroidRadius = 4
+
+minAsteroidFieldCount = 40
+maxAsteroidFieldCount = 50
+asteroidFieldRadius = 300
+
+fieldMinVelocity = 0.4
+fieldMaxVelocity = 0.8
+fieldMoveRadius = 500
+
+beltWidth = 15
+
+have fun
