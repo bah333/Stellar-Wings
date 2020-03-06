@@ -1,1 +1,5 @@
+(old comments now)
+OnCollisionEnter is still relevent
+See Asteroid Manager comments
+
 A sample scene of 2 spawners sending asteroids to collide with each other. The Asteroid prefab and ProceduralAsteroid.cs are all you need for the asteroids. If tags are removed when importing prefabs into other scenes add the tag "Asteroid" to the asteroid prefab. The only code that will need to be added is code inside the OnCollisionEnter function to ensure the asteroid interacts with other objects such as a space ship collision or collision with weapon projectiles properly. I've placed OnCollisionEnter as the first function within the class. Asteroids will collide and act with proper physics any object with a collider and Rigidbody attached. Some public variables will need to be given a value in the inspector or whatever script is instantiating an asteroid and some don't, read the comments attached to public variable declarations in script for clarification. Feel free to read the code for instantiating an asteroid at the bottom of ProceduralAsteroid.cs or TestSpawner.cs for an example of how the need to be Instantiated.
