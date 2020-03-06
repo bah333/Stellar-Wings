@@ -60,7 +60,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 43854611e16b3084f8c2e243c49103c4, type: 2}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -101,9 +101,9 @@ MonoBehaviour:
     type: 2}
   highHealthMaterial: {fileID: 2100000, guid: c3c7dae56061d7440b4b4f39d77efdf4, type: 2}
   health: 0
-  materialType: 2
-  drag: 1
-  initialForwardVelocity: {x: 50, y: 0, z: 0}
+  materialType: 1
+  drag: 0.5
+  initialForwardVelocity: {x: 0, y: 0, z: 0}
   asteroid: {fileID: 5215687387197929984}
 --- !u!54 &54677427828169206
 Rigidbody:

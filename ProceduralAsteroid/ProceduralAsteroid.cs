@@ -1,4 +1,12 @@
-﻿using UnityEngine;
+﻿/*****************************
+
+    ProceduralAsteroid.cs
+    Brandon Alex Huzil
+    builds a procedurally generated asteroid and handles its health
+    on collisions
+
+*****************************/
+using UnityEngine;
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
@@ -40,10 +48,11 @@ public class ProceduralAsteroid : MonoBehaviour
 
     public int materialType; // !MUST BE FILLED IN INSPECTOR AS 1, 2, OR 3, OR STATED BY WHATEVER INSTANTIATES ASTEROID AS 1, 2, OR 3! 1 is low, 2 is medium, 3 is high health material will be used
 
-    public float drag = 1.0f; // although public i recomend 1.0f, alternativly can be 0 to allow moving asteroids to travel forever
+    public float drag = 0.5f; // although public i recomend 0.5f, alternativly can be 0 to allow moving asteroids to travel forever
     public Vector3 initialForwardVelocity; // !MUST BE DEFINED IN INSPECTOR OR WHATEVER INSTANTIATES ASTEROID!, this is in world space
 
     public GameObject asteroid; // must be filled with asteroid prefab
+
 
 
 
@@ -64,15 +73,37 @@ public class ProceduralAsteroid : MonoBehaviour
     // please only let Alex (Brandon Huzil) edit any code outside of this function
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag == "Asteroid")
+        if (collision.gameObject.tag == "Asteroid" || collision.gameObject.tag == "Ship")
         {
-            subtractHealth((int) (collision.relativeVelocity.magnitude / 2.0f));
+            SubtractHealth((int) (collision.relativeVelocity.magnitude / 2.0f));
         }
     }
     //********************************************************************************
 
+    // Because unity handles class construction, not us we need to call this function to get info
+    // from an Asteroid Manager if this asteroid was instantiated from a manager
+    void PseudoConstructor()
+    {
+        // if this asteroid comes from an Asteroid Manager
+        if (transform.parent != null)
+        {
+            float r;
+            int m;
+            Vector3 v;
+            Vector3 p;
+
+            transform.parent.GetComponent<AsteroidManager>().GetConstructionVals(out r, out m, out v, out p);
+
+            sphereRadius = r;
+            materialType = m;
+            initialForwardVelocity = v;
+            transform.position = p;
+        }
+    }
+
 	void Awake()
     {
+        PseudoConstructor();
         GetComponent<MeshFilter>().mesh = mesh = new Mesh();
         rb = GetComponent<Rigidbody>();
         rb.drag = drag;
@@ -96,10 +127,11 @@ public class ProceduralAsteroid : MonoBehaviour
     
 
         // slight sphere dismorphing by altering spiker and denter
-        //float spiker = Random.Range(0.1f, 3.0f);
-        //float denter = Random.Range(2.0f, 3.0f);
-        float spiker = 1.0f;//Random.Range(sphereRadius, sphereRadius * 3.0f);
-        float denter = 2.0f;//Random.Range(sphereRadius * 2.0f, sphereRadius * 3.0f);
+        // this adds natural roughnerss and unevenness
+        float spiker = Random.Range(0.5f, 1.5f) / sphereRadius;
+        float denter = Random.Range(1.5f, 2.5f) / sphereRadius;
+        //float spiker = 1.0f / sphereRadius;
+        //float denter = 2.0f / sphereRadius;
         t = (spiker + Mathf.Sqrt(5.0f)) / denter;
         DesignIcosahedrone();
         RefineIcosphere();
@@ -298,12 +330,39 @@ public class ProceduralAsteroid : MonoBehaviour
 
 
     // call this when health <= 0
-    public void subtractHealth(int damage)
+    public void SubtractHealth(int damage)
     {                            
         health -= damage;
 
         if (health <= 0)
         {
+            if (sphereRadius >= 3.3f) // massive asteroid, no chance of lossed mass upon breaking
+            {
+                int x = Random.Range(2, 5);
+                if(x == 2)
+                {
+                    float a = Random.Range(sphereRadius/2.0f - 0.75f, sphereRadius/2.0f + 0.75f);
+                    produceSmallerAsteroid(a);
+                    produceSmallerAsteroid(sphereRadius - a);
+                }
+                else if (x == 3)
+                {
+                    float a = Random.Range(sphereRadius/3.0f - 0.3f, sphereRadius/3.0f + 0.3f);
+                    float b = Random.Range(sphereRadius/3.0f - 0.3f, sphereRadius/3.0f + 0.3f);
+                    produceSmallerAsteroid(a);
+                    produceSmallerAsteroid(b);
+                    produceSmallerAsteroid(sphereRadius - a - b);
+                }
+                else
+                {
+                    float a = Random.Range(sphereRadius/4.5f - 0.2f, sphereRadius/4.5f + 0.2f);
+                    float b = Random.Range(sphereRadius/4.5f - 0.2f, sphereRadius/4.5f + 0.2f);
+                    produceSmallerAsteroid(a);
+                    produceSmallerAsteroid(b);
+                    produceSmallerAsteroid(sphereRadius - a);
+                    produceSmallerAsteroid(sphereRadius - b);
+                }
+            }
             if (sphereRadius >= 2.5f) // huge huge asteroid
             {
                 if(Random.Range(0, 3 -1) == 0) // break into 2 peices
@@ -386,12 +445,21 @@ public class ProceduralAsteroid : MonoBehaviour
     }
 
     // produces smaller asteroids with givin radius and some values based off of this asteroid
+    //public float nextRadius;
+    //public Vector3 nextInititalVelocity;
     void produceSmallerAsteroid(float radius)
     {
-        asteroid.GetComponent<ProceduralAsteroid>().sphereRadius = radius;
-        asteroid.GetComponent<ProceduralAsteroid>().radiusVariationRange = radius / 2.0f;
-        asteroid.GetComponent<ProceduralAsteroid>().materialType = materialType;
-        asteroid.GetComponent<ProceduralAsteroid>().initialForwardVelocity = rb.velocity;
-        Instantiate(asteroid);
+        //asteroid.GetComponent<ProceduralAsteroid>().sphereRadius = radius;
+        //asteroid.GetComponent<ProceduralAsteroid>().radiusVariationRange = radius / 2.0f;
+        //asteroid.GetComponent<ProceduralAsteroid>().materialType = materialType;
+    
+        //asteroid.GetComponent<ProceduralAsteroid>().initialForwardVelocity = rb.velocity;
+
+
+        //nextRadius = radius;
+        //nextInititalVelocity = rb.velocity;
+        transform.parent.GetComponent<AsteroidManager>().InstantiateAsteroid(radius, materialType, rb.velocity, transform.position);
+        // pass up these plus material type
+
     }
 }
