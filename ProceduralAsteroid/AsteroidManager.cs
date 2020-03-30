@@ -29,7 +29,7 @@ public class AsteroidManager : MonoBehaviour
 
     public int minAsteroidFieldCount = 1; // the minimum amount of asteroids that will spawn in a field, if just on asteroid is spawned at will spwan at the asteroid managers location and will not move as a field or belt
     public int maxAsteroidFieldCount = 20; // the maximum amount of asteroids that will spawn in a field
-    public float asteroidFieldRadius = 300f; // the radius of the field it has more then 1 asteroid and is not a belt
+    public float asteroidFieldRadius; // the radius of the field it has more then 1 asteroid and is not a belt
 
     public bool fieldMoves = true; // whether or not a field moves in a circle or a belt rotates
     public float fieldMinVelocity = 0f; // the minimum speed of a moving field or rotating belt
@@ -42,6 +42,7 @@ public class AsteroidManager : MonoBehaviour
     public float beltWidth = 15f; // the width of a belt
     Rigidbody rb;
 
+    int fieldSize;
 
 
     float r;
@@ -49,6 +50,8 @@ public class AsteroidManager : MonoBehaviour
     Vector3 v;
     Vector3 p;
 
+    Vector3 initialLocation;
+    bool determined = false;
 
 
 void Awake()
@@ -60,7 +63,7 @@ void Awake()
     void Start()
     {
         // decide how many asteroids in the field
-        int fieldSize = Random.Range(minAsteroidFieldCount, maxAsteroidFieldCount + 1);
+        fieldSize = Random.Range(minAsteroidFieldCount, maxAsteroidFieldCount + 1);
         int directionX, directionY, directionZ;
 
         if (fieldSize == 1) // instantiate the single asteroid at the position of the asteroid manager
@@ -97,11 +100,16 @@ void Awake()
     {
         if(!isBelt && fieldMoves) // move a field around in a big circle
         {
+            if (! determined)
+            {
+                initialLocation = transform.position;
+                determined = true;
+            }
             angle += Time.deltaTime * (fieldMoveSpeed / (fieldMoveRadius/10f));
             float x = Mathf.Cos (angle) * fieldMoveRadius;
             float z = Mathf.Sin (angle) * fieldMoveRadius;
             float y = 0;
-            transform.position = new Vector3 (x, y, z);
+            transform.position = new Vector3 (initialLocation.x + x, initialLocation.y + y, initialLocation.z + z);
         }
         else if (isBelt && fieldMoves) // rotate the belt
         {
@@ -131,6 +139,7 @@ void Awake()
         p = position;
 
         GameObject newInstance = Instantiate(asteroid, transform);
+        //newInstance.transform.position = gameObject.transform.position;
 
         if (timedAsteroids)
         {
@@ -197,8 +206,14 @@ void Awake()
             float z = Random.Range(-1f, 1.0001f);
             // the 2nd new vector3 givin to Instantiate asteroid is a point in the shpere found by picking a random direction vector and projecting out a distance between 0 and radius
             // this generates an asteroid field though they apear more often near the center because those with less projection will have naturally less distance between each other then thos of greater projection however this is an accurate felling distribution
-            InstantiateAsteroid(Random.Range(minAsteroidRadius, maxAsteroidRadius + 0.0001f), materialType, new Vector3(directionX * Random.Range(minSpawnVelocity, maxSpawnVelocity + 0.0001f), directionY * Random.Range(minSpawnVelocity, maxSpawnVelocity + 0.0001f), directionZ * Random.Range(minSpawnVelocity, maxSpawnVelocity + 0.0001f)), new Vector3(x, y, z) * Random.Range(0f, asteroidFieldRadius + 0.001f));
+            InstantiateAsteroid(Random.Range(minAsteroidRadius, maxAsteroidRadius + 0.0001f), materialType, new Vector3(directionX * Random.Range(minSpawnVelocity, maxSpawnVelocity + 0.0001f), directionY * Random.Range(minSpawnVelocity, maxSpawnVelocity + 0.0001f), directionZ * Random.Range(minSpawnVelocity, maxSpawnVelocity + 0.0001f)), new Vector3(x, y, z) * Random.Range(3f, asteroidFieldRadius + 0.001f));
+            
+            //Vector3 location = new Vector3(Random.Range(0f, asteroidFieldRadius/2f), 0f, 0f);
+            //transform.Rotate(Random.Range(0f, 360.0001f), Random.Range(0f, 360.0001f), Random.Range(0f, 360.0001f), Space.Self);
+            //InstantiateAsteroid(Random.Range(minAsteroidRadius, maxAsteroidRadius + 0.0001f), materialType, new Vector3(directionX * Random.Range(minSpawnVelocity, maxSpawnVelocity + 0.0001f), directionY * Random.Range(minSpawnVelocity, maxSpawnVelocity + 0.0001f), directionZ * Random.Range(minSpawnVelocity, maxSpawnVelocity + 0.0001f)), location);
         }
+        if (fieldMoves)
+            transform.Rotate(0f, Random.Range(0f, 360.0001f), 0f, Space.Self);
     }
 
     // builds an asteroid belt
@@ -228,6 +243,11 @@ void Awake()
 
             InstantiateAsteroid(Random.Range(minAsteroidRadius, maxAsteroidRadius + 0.0001f), materialType, new Vector3(directionX * Random.Range(minSpawnVelocity, maxSpawnVelocity + 0.0001f), directionY * Random.Range(minSpawnVelocity, maxSpawnVelocity + 0.0001f), directionZ * Random.Range(minSpawnVelocity, maxSpawnVelocity + 0.0001f)), asteroidPosition);
         }
+    }
+
+    public int GetAsteroidAmount()
+    {
+        return fieldSize;
     }
 
 }

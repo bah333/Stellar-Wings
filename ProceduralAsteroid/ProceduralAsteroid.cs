@@ -73,7 +73,7 @@ public class ProceduralAsteroid : MonoBehaviour
     // please only let Alex (Brandon Huzil) edit any code outside of this function
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag == "Asteroid" || collision.gameObject.tag == "Ship")
+        if (collision.gameObject.tag == "Asteroid" || collision.gameObject.tag == "Your tag here")
         {
             SubtractHealth((int) (collision.relativeVelocity.magnitude / 2.0f));
         }
@@ -97,7 +97,7 @@ public class ProceduralAsteroid : MonoBehaviour
             sphereRadius = r;
             materialType = m;
             initialForwardVelocity = v;
-            transform.position = p;
+            transform.position = transform.parent.position + p;
         }
     }
 
@@ -128,10 +128,10 @@ public class ProceduralAsteroid : MonoBehaviour
 
         // slight sphere dismorphing by altering spiker and denter
         // this adds natural roughnerss and unevenness
-        float spiker = Random.Range(0.5f, 1.5f) / sphereRadius;
-        float denter = Random.Range(1.5f, 2.5f) / sphereRadius;
-        //float spiker = 1.0f / sphereRadius;
-        //float denter = 2.0f / sphereRadius;
+        float spiker = Random.Range(0.5f, 1.5f);// / sphereRadius;
+        float denter = Random.Range(1.5f, 2.5f);// / sphereRadius;
+        //float spiker = 1.0f;// / sphereRadius;
+        //float denter = 2.0f;// / sphereRadius;
         t = (spiker + Mathf.Sqrt(5.0f)) / denter;
         DesignIcosahedrone();
         RefineIcosphere();
@@ -151,15 +151,12 @@ public class ProceduralAsteroid : MonoBehaviour
         Quaternion deltaRotation = Quaternion.Euler(eulerAngleVelocity * Time.deltaTime);
         rb.MoveRotation(rb.rotation * deltaRotation);
     }
-    void Update() 
-    {            
-      
-    }
+
 
     // create the vertices that lie on the base icosahedron
     void DesignIcosahedrone()
     {
-        float radius = sphereRadius;
+        float radius = 1f;//sphereRadius;//*******************************************************
         // build vertices for icosahedron
         vertices[0] = new Vector3(-radius, t, 0);
         vertices[1] = new Vector3(radius, t, 0);
@@ -239,7 +236,7 @@ public class ProceduralAsteroid : MonoBehaviour
     {
         float x, y, z, length;
         float displacer = 2.0f;
-        float radius = sphereRadius;
+        float radius = 1f;//sphereRadius;//*******************************************************
 
         x = (point1.x + point2.x) / 2.0f;
         y = (point1.y + point2.y) / 2.0f;
@@ -312,7 +309,11 @@ public class ProceduralAsteroid : MonoBehaviour
             else if (ran % 3 == 2)
                 ran += 1;
 
-            float radius = sphereRadius + Random.Range((-radiusVariationRange * sphereRadius), (radiusVariationRange * sphereRadius + 0.1f));
+            //*******************************************************
+
+            //*******************************************************
+            float radius = 1f + Random.Range((-radiusVariationRange), (radiusVariationRange + 0.1f));
+            //float radius = sphereRadius + Random.Range((-radiusVariationRange * sphereRadius), (radiusVariationRange * sphereRadius + 0.1f));
             for (int i = 0; i < 3; i++) // displaces the vertices associated with a particular triangle
             {
                 //radius = sphereRadius + Random.Range(-radiusVariationRange, radiusVariationRange);
@@ -326,6 +327,7 @@ public class ProceduralAsteroid : MonoBehaviour
                 //MakeCubeAtPoint(vertices[triangles[ran + i]]);
             }
         }
+        transform.localScale = new Vector3(sphereRadius, sphereRadius, sphereRadius);
     }
 
 
@@ -438,10 +440,28 @@ public class ProceduralAsteroid : MonoBehaviour
                     produceSmallerAsteroid(0.3f);
             }
 
-
+            AddResourcesOnDestruction();
             Destroy(this.gameObject);
         }
 
+    }
+
+    // adds to the resources in Globals
+    void AddResourcesOnDestruction()
+    {
+        GameObject globals = GameObject.Find("Globals");
+        if(materialType == 1)
+        {
+            globals.GetComponent<GlobalVariables>().lowMaterialAmount += 1;
+        }
+        else if(materialType == 2)
+        {
+            globals.GetComponent<GlobalVariables>().mediumMaterialAmount += 1;
+        }
+        else if(materialType == 3)
+        {
+            globals.GetComponent<GlobalVariables>().highMaterialAmount += 1;
+        }
     }
 
     // produces smaller asteroids with givin radius and some values based off of this asteroid
